@@ -35,14 +35,14 @@ def checkIfProcessRunning(processName):
 
 
 
-def callback(): #funkcja wykonujaca wybor folderu-matki 
+def callback(): #function which grabs a path of the main folder 
     global selected_folder_path
     selected_folder_path = fd.askdirectory() #pobiera sciezke folderu
 tk.Button(text='Choose directory', command=callback).pack(fill=tk.X)#tworzy przycisk ktory wywoluje f-cje callback
 tk.mainloop()
 
-channelFolder_path_list=[]     #creates list to which folder paths will be appended
-parentFolder_path_list=[]
+channelFolder_path_list=[]     #creates a list to which paths of folders with images from a single channel will be appended
+parentFolder_path_list=[]       #creates a list to which paths of folders with images from a single experiment will be appended
 
 #loop to create list of folders which contain images from a single channel
 for (path, dir, files) in os.walk(selected_folder_path):
@@ -54,34 +54,31 @@ df.to_csv('workingFolders_paths.csv', index=False, header=False)  # dataframe sa
 
 script_path=os.getcwd()+"\\czi_to_tif.ijm" #checks a path from which the script was run and creates a path were macro is located
 
-# odpalamy makro ImageJ przerabiajace czi do tif i robiace preprocessing
-# makro musi byc umieszczone w katalogu makr ImageJ w tej lokalizacji z ktorej jest uruchamiany ImageJ
-# warto zmienic zeby ImageJ byl odpalany w headless
-cmd = ["C:\\Program Files\\Fiji.app\\ImageJ-win64.exe","-macro",script_path]
+#launch FIJI macro to convert images from .czi to .tiff
+cmd = ["C:\\Program Files\\Fiji.app\\ImageJ-win64.exe","-macro",script_path] #this line must contain the actual location of FIJI in user's system
 process = subprocess.Popen(cmd)
 
-
+#check if FIJI is running
 while checkIfProcessRunning('ImageJ-win64'): 
    
    print("FIJI at work")
    
-#  odpalam skrypt pythona uruchamiający Ilastika
+#if FIJI is done, launch the script which in turn launches Ilastik
 print("Now we start Ilastik")
 os.system('Ilastik_headless_fat_vs_flat.py')
 
 
-# odpalamy makro ImageJ przerabiajace obliczające pola na postawie predykcji Ilastika
-# makro musi byc umieszczone w katalogu makr ImageJ w tej lokalizacji z ktorej jest uruchamiany ImageJ
-# warto zmienic zeby ImageJ byl odpalany w headless
+#launch FIJI macro to quantify maps created by Ilastik
+#Make sure that FIJI is configured as described in manual.txt
 script_path=os.getcwd()+"\\area_thrombi.ijm" #checks a path from which the script was run and creates a path were macro is located
-cmd = ["C:\\Program Files\\Fiji.app\\ImageJ-win64.exe","-macro",script_path]
+cmd = ["C:\\Program Files\\Fiji.app\\ImageJ-win64.exe","-macro",script_path] #this line must contain the actual location of FIJI in user's system
 process = subprocess.Popen(cmd)
 
 while checkIfProcessRunning('ImageJ-win64'): 
    
    print("FIJI at work")
    
-#  odpalam skrypt pythona uruchamiający Ilastika
+#if FIJI is done launch the script which summarizes data
 print("Now we start summary")
 
 #loop to create list of folders which contain folders with images from single channel
@@ -95,6 +92,6 @@ for (path, dir, files) in os.walk(selected_folder_path):
         if not parentFolder_path in parentFolder_path_list: # it has to list the parent folder only once
             parentFolder_path_list.append(parentFolder_path)    # append path of this folder to the list
 
-df = pd.DataFrame(parentFolder_path_list)    # list of paths to dataframe
+df = pd.DataFrame(parentFolder_path_list)    # list of paths from which the results_summary script will grab the paths to operate on
 df.to_csv('parentFolders_paths.csv', index=False, header=False)  # dataframe saved to csv file in the folder from which the script was launched
 os.system('results_summary.py')

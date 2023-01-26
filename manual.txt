@@ -1,0 +1,42 @@
+IMPORTANT INFO REGARDING THE SCRIPTS!!!
+
+*Make sure that your FIJI app is configured as follows:
+ Analyze -> Set Measurements 
+ Tick the following:
+ Area, Shape descriptors, Perimeter, Feret's diameter, Add to overlay, Display label
+
+ Plugins-> Bio-Formats -> Bio-Formats Plugins Configuration -> Formats
+	From the list of formats choose the format of the images to be analyzed and tick Windowless. 
+ 
+
+*It is suggested that Ilastik version used for segmentation should be the same as the one used for training. The bundle contains Ilastik models trained in the version 1.4
+ It is preferable that a user trained Ilastik models with the use of images obtained in his own experimental setup and use these models for further analyses. 
+
+*Names of image files, folders where they are located and their parent folders MUST NOT contain any spaces or letters with diacritical marks!!!
+ Otherwise the script may crash.
+
+*Location of the scripts or the images in some of the cloud services may also cause the script to crash. It is preferable to run the analyses on images located on a local drive.
+
+*In the pipeline.py script 
+ Lines 58 and 74 must contain the actual path to FIJI app executable file in user's system
+
+*In the Ilastik_headless_pipeline.py and in the Ilastik_headless_fat_vs_flat.py
+ Line 15 must contain the actual path to Ilastik executable file on user's system
+ Lines 31 and 35: replace 'ilastik.exe' with an appropriate executable file name depending on your system
+
+*Make sure that the environment where the sript is run contains all the required libraries:
+tkinter
+subprocess
+os
+pandas
+pathlib
+psutil
+csv
+numpy
+matplotlib
+
+*To run the script 
+ open a console
+ move to the folder all_objects or thrombi_only depending on the analysis you want to perform
+ type: python pipeline.py and press enter
+ in the window which pops up choose the folder with images to be analyzed and close the window, the analysis will start
